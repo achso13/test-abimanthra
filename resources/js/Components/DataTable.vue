@@ -20,6 +20,10 @@ defineProps({
     },
 })
 
+const getNestedValue = (obj, path) => {
+    return path.split('.').reduce((acc, key) => acc?.[key], obj) ?? '-'
+}
+
 defineEmits(['delete'])
 </script>
 
@@ -74,8 +78,8 @@ defineEmits(['delete'])
                             class="px-4 py-3 text-gray-700"
                         >
                             
-                            <slot :name="`cell-${col.key}`" :row="row" :value="row[col.key]">
-                                {{ row[col.key] ?? '-' }}
+                            <slot :name="`cell-${col.key}`" :row="row" :value="getNestedValue(row, col.key)">
+                                {{ getNestedValue(row, col.key) }}
                             </slot>
                         </td>
 

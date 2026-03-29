@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Nilai;
+use App\Models\Siswa;
 use Illuminate\Http\Request;
 
 class NilaiController extends Controller
@@ -9,9 +11,21 @@ class NilaiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $nilai = Nilai::query()
+            ->with('siswa')
+            ->when($request->search, 
+                fn($query, $search) => $query->whereHas('siswa', fn($q) => $q->where('nama', 'like', "%$search%"))
+            )
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return inertia('Nilai/Index', [
+            'nilai' => $nilai,
+            'filters'  => $request->only('search'),
+        ]);
     }
 
     /**
@@ -19,7 +33,11 @@ class NilaiController extends Controller
      */
     public function create()
     {
-        //
+        $siswa = Siswa::select('id', 'nama')->get();
+
+        return inertia('Nilai/Create', [
+            'siswa' => $siswa,
+        ]);
     }
 
     /**
@@ -27,15 +45,21 @@ class NilaiController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'siswa_id' => 'required|exists:siswa,id',
+            'kelas' => 'required|string|max:255',
+            'mapel' => 'required|string|max:255',
+            'nilai' => 'required|numeric|min:0|max:100',
+        ]);
+        
+        Nilai::create([
+            'siswa_id' => $request->siswa_id,
+            'kelas' => $request->kelas,
+            'mapel' => $request->mapel,
+            'nilai' => $request->nilai,
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        return redirect()->route('nilai.index')->with('success', 'Nilai berhasil ditambahkan.');
     }
 
     /**
@@ -43,7 +67,13 @@ class NilaiController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $siswa = Siswa::select('id', 'nama')->get();
+        $nilai = Nilai::with('siswa')->findOrFail($id);
+
+        return inertia('Nilai/Edit', [
+            'siswa' => $siswa,
+            'nilai' => $nilai,
+        ]);
     }
 
     /**
@@ -51,7 +81,23 @@ class NilaiController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $nilai = Nilai::findOrFail($id);
+
+        $request->validate([
+            'siswa_id' => 'required|exists:siswa,id',
+            'kelas' => 'required|string|max:255',
+            'mapel' => 'required|string|max:255',
+            'nilai' => 'required|numeric|min:0|max:100',
+        ]);
+        
+        $nilai->update([
+            'siswa_id' => $request->siswa_id,
+            'kelas' => $request->kelas,
+            'mapel' => $request->mapel,
+            'nilai' => $request->nilai,
+        ]);
+
+        return redirect()->route('nilai.index')->with('success', 'Nilai berhasil diperbarui.');
     }
 
     /**
@@ -59,6 +105,9 @@ class NilaiController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $nilai = Nilai::findOrFail($id);
+        $nilai->delete();
+
+        return redirect()->route('nilai.index')->with('success', 'Nilai berhasil dihapus.');
     }
 }

@@ -36,7 +36,7 @@ const submit = () => {
                     <div class="p-6">
                         <form @submit.prevent="submit" class="space-y-4">
                             <div>
-                                <InputLabel for="nama" value="Nama" />
+                                <InputLabel :required="true" for="nama" value="Nama" />
                                 <TextInput
                                     id="nama"
                                     type="text"
@@ -48,7 +48,7 @@ const submit = () => {
                             </div>
 
                             <div>
-                                <InputLabel for="kelas" value="Kelas" />
+                                <InputLabel :required="true" for="kelas" value="Kelas" />
                                 <TextInput
                                     id="kelas"
                                     type="text"
@@ -59,7 +59,7 @@ const submit = () => {
                             </div>
 
                             <div>
-                                <InputLabel for="alamat" value="Alamat" />
+                                <InputLabel :required="true" for="alamat" value="Alamat" />
                                 <TextInput
                                     id="alamat"
                                     type="text"
@@ -70,7 +70,7 @@ const submit = () => {
                             </div>
                             
                             <div>
-                                <InputLabel value="Lokasi Rumah (Klik pada peta)" />
+                                <InputLabel :required="true" value="Lokasi Rumah (Klik pada peta)" />
                                 <MapPicker
                                     v-model="form.coordinate"
                                     @update:alamat="(val) => form.alamat = val"

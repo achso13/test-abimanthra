@@ -4,6 +4,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import InputLabel from '@/Components/InputLabel.vue'
 import TextInput from '@/Components/TextInput.vue'
+import SelectInput from '@/Components/SelectInput.vue'
 import InputError from '@/Components/InputError.vue'
 import MapPicker from '@/Components/MapPicker.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
@@ -13,24 +14,24 @@ const props = defineProps({
 })
 
 const form = useForm({
-    nama: props.siswa.nama,
-    kelas: props.siswa.kelas,
-    alamat: props.siswa.alamat,
-    coordinate: props.siswa.coordinate,
+    siswa_id: '',
+    kelas: '',
+    mapel: '',
+    nilai: '',
 })
 
 const submit = () => {
-    form.put(route('siswa.update', props.siswa.id))
+    form.post(route('nilai.store'))
 }
 </script>
 
 <template>
-    <Head title="Edit Siswa" />
+    <Head title="Tambah Nilai" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Edit Siswa
+                Tambah Nilai
             </h2>
         </template>
 
@@ -40,13 +41,15 @@ const submit = () => {
                     <div class="p-6">
                         <form @submit.prevent="submit" class="space-y-4">
                             <div>
-                                <InputLabel :required="true" for="nama" value="Nama" />
-                                <TextInput
-                                    id="nama"
-                                    type="text"
+                                <InputLabel :required="true" for="nama" value="Nama Siswa" />
+                                <SelectInput
+                                    id="siswa_id"
                                     class="mt-1 block w-full"
-                                    v-model="form.nama"
-                                    autofocus
+                                    v-model="form.siswa_id"
+                                    :options="siswa"
+                                    option-value="id"
+                                    option-label="nama"
+                                    placeholder="-- Pilih Siswa --"
                                 />
                                 <InputError class="mt-2" :message="form.errors.nama" />
                             </div>
@@ -63,30 +66,30 @@ const submit = () => {
                             </div>
 
                             <div>
-                                <InputLabel :required="true" for="alamat" value="Alamat" />
+                                <InputLabel :required="true" for="mapel" value="Mata Pelajaran" />
                                 <TextInput
-                                    id="alamat"
+                                    id="mapel"
                                     type="text"
                                     class="mt-1 block w-full"
-                                    v-model="form.alamat"
+                                    v-model="form.mapel"
                                 />
-                                <InputError class="mt-2" :message="form.errors.alamat" />
+                                <InputError class="mt-2" :message="form.errors.mapel" />
                             </div>
-                            
+
                             <div>
-                                <InputLabel :required="true" value="Lokasi Rumah (Klik pada peta)" />
-                                <MapPicker
-                                    v-model="form.coordinate"
-                                    @update:alamat="(val) => form.alamat = val"
-                                    :initial-coordinate="form.coordinate"
-                                    class="mt-1"
+                                <InputLabel :required="true" for="nilai" value="Nilai" />
+                                <TextInput
+                                    id="nilai"
+                                    type="number"
+                                    class="mt-1 block w-full"
+                                    v-model="form.nilai"
                                 />
-                                <InputError class="mt-2" :message="form.errors.coordinate" />
+                                <InputError class="mt-2" :message="form.errors.nilai" />
                             </div>
 
                             <div class="flex items-center justify-end gap-3 pt-2">
                                 <Link
-                                    :href="route('siswa.index')"
+                                    :href="route('nilai.index')"
                                     class="text-sm text-gray-500 hover:text-gray-700"
                                 >
                                     Batal
