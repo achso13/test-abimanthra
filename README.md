@@ -1,3 +1,7 @@
+# Logical Test dan Technical Test
+
+Jawaban untuk logical dan technical test ada pada file logical_test.php dan techniqal_test.sql
+
 # School Management System
 
 Sistem manajemen sekolah berbasis web untuk mengelola data siswa, nilai, dan lokasi rumah siswa.
