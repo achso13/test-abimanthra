@@ -3,15 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Siswa;
 
 class SiswaController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $siswa = Siswa::query()
+            ->when($request->search, fn($q) => $q->whereRaw('nama ILIKE ?', ["%{$request->search}%"]))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return inertia('Siswa/Index', [
+            'siswa' => $siswa,
+            'filters'  => $request->only('search'),
+        ]);
     }
 
     /**
@@ -19,7 +29,7 @@ class SiswaController extends Controller
      */
     public function create()
     {
-        //
+        return inertia('Siswa/Create');
     }
 
     /**
@@ -27,15 +37,21 @@ class SiswaController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'kelas' => 'required|string|max:255',
+            'alamat' => 'required|string|max:255',
+            'coordinate' => 'required|string|max:255',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        Siswa::create([
+            'nama' => $request->nama,
+            'kelas' => $request->kelas,
+            'alamat' => $request->alamat,
+            'coordinate' => $request->coordinate,
+        ]);
+
+        return redirect()->route('siswa.index')->with('success', 'Siswa berhasil ditambahkan.');
     }
 
     /**
@@ -43,7 +59,10 @@ class SiswaController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $siswa = Siswa::findOrFail($id);
+        return inertia('Siswa/Edit', [
+            'siswa' => $siswa,
+        ]);
     }
 
     /**
@@ -51,7 +70,23 @@ class SiswaController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $siswa = Siswa::findOrFail($id);
+
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'kelas' => 'required|string|max:255',
+            'alamat' => 'required|string|max:255',
+            'coordinate' => 'required|string|max:255',
+        ]);
+
+        $siswa->update([
+            'nama' => $request->nama,
+            'kelas' => $request->kelas,
+            'alamat' => $request->alamat,
+            'coordinate' => $request->coordinate,
+        ]);
+
+        return redirect()->route('siswa.index')->with('success', 'Siswa berhasil diperbarui.');
     }
 
     /**
@@ -59,6 +94,9 @@ class SiswaController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $siswa = Siswa::findOrFail($id);
+        $siswa->delete();
+
+        return redirect()->route('siswa.index')->with('success', 'Siswa berhasil dihapus.');
     }
 }

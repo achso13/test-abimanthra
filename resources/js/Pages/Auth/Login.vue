@@ -22,16 +22,6 @@ const form = useForm({
 });
 
 const submit = () => {
-    if(!form.email){
-        form.errors.email = 'Email is required';
-        return;
-    }
-
-    if(!form.password){
-        form.errors.password = 'Password is required';
-        return;
-    }
-
     form.post(route('login'), {
         onFinish: () => form.reset('password'),
     });
@@ -55,7 +45,6 @@ const submit = () => {
                     type="email"
                     class="mt-1 block w-full"
                     v-model="form.email"
-                    required
                     autofocus
                     autocomplete="username"
                 />
@@ -71,7 +60,6 @@ const submit = () => {
                     type="password"
                     class="mt-1 block w-full"
                     v-model="form.password"
-                    required
                     autocomplete="current-password"
                 />
 

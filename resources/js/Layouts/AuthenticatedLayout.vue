@@ -39,6 +39,18 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Dashboard
                                 </NavLink>
+                                <NavLink
+                                    :href="route('siswa.index')"
+                                    :active="route().current('siswa.index')"
+                                >
+                                    Siswa
+                                </NavLink>
+                                <NavLink
+                                    :href="route('nilai.index')"
+                                    :active="route().current('nilai.index')"
+                                >
+                                    Nilai Siswa
+                                </NavLink>
                             </div>
                         </div>
 
@@ -145,6 +157,18 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('dashboard')"
                         >
                             Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('dashboard')"
+                            :active="route().current('dashboard')"
+                        >
+                            Siswa
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('dashboard')"
+                            :active="route().current('dashboard')"
+                        >
+                            Nilai Siswa
                         </ResponsiveNavLink>
                     </div>
 
