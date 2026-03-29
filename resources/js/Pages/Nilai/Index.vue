@@ -1,9 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { Head, Link, router, usePage } from '@inertiajs/vue3'
+import { Head, Link, router, usePage, useForm } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import DataTable from '@/Components/DataTable.vue'
 import Alert from '@/Components/Alert.vue' 
+import Modal from '@/Components/Modal.vue'
 
 const page = usePage()
 
@@ -36,6 +37,27 @@ const columns = [
 
 const flash = computed(() => page.props.flash)
 
+const showImportModal = ref(false)
+const importForm = useForm({ file: null })
+
+const handleFileChange = (e) => {
+    importForm.file = e.target.files[0]
+}
+
+const submitImport = () => {
+    importForm.post(route('nilai.import'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            showImportModal.value = false
+            importForm.reset()
+        },
+    })
+}
+
+const closeImportModal = () => {
+    showImportModal.value = false
+    importForm.reset()
+}
 </script>
 
 <template>
@@ -73,17 +95,18 @@ const flash = computed(() => page.props.flash)
 
                             <div class="flex gap-2">
                                 <button
+                                    @click="showImportModal = true"
                                     type="button"
                                     class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700"
                                 >
                                     Import
                                 </button>
-                                <button
-                                    type="button"
-                                    class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700"
+                                <a
+                                    :href="route('nilai.export', { search: filters.search })"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
                                 >
                                     Export
-                                </button>
+                                </a>
                                 <Link
                                     :href="route('nilai.create')"
                                     class="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700"
@@ -119,5 +142,63 @@ const flash = computed(() => page.props.flash)
                 </div>
             </div>
         </div>
+
+        <Modal :show="showImportModal" max-width="md" @close="closeImportModal">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Import Nilai</h3>
+                    <button @click="closeImportModal" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-xs text-blue-700 mb-4">
+                    <p class="font-semibold mb-1">Format kolom Excel:</p>
+                    <p>No | <strong>nama</strong> | <strong>kelas</strong> | <strong>mapel</strong> | <strong>nilai</strong></p>
+                    <p class="mt-1 text-blue-500">* Kolom <strong>No</strong> akan diabaikan saat import</p>
+                    <p class="text-blue-500">* Nama siswa harus sesuai data yang ada di sistem</p>
+                </div>
+
+                <div class="mb-4">
+                    <a
+                        :href="route('nilai.sample')"
+                        class="inline-flex items-center gap-1 text-xs text-green-600 hover:text-green-800 underline"
+                    >
+                        Download sample Excel
+                    </a>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Pilih File <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="file"
+                        accept=".xlsx,.xls,.csv"
+                        @change="handleFileChange"
+                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                    />
+                    <p v-if="importForm.errors.file" class="mt-1 text-xs text-red-500">
+                        {{ importForm.errors.file }}
+                    </p>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <button
+                        type="button"
+                        @click="closeImportModal"
+                        class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+                    >
+                        Batal
+                    </button>
+                    <button
+                        type="button"
+                        @click="submitImport"
+                        :disabled="importForm.processing || !importForm.file"
+                        class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 disabled:opacity-50"
+                    >
+                        {{ importForm.processing ? 'Mengimport...' : 'Import' }}
+                    </button>
+                </div>
+            </div>
+        </Modal>
     </AuthenticatedLayout>
 </template>

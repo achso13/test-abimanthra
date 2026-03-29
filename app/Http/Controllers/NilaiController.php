@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\NilaiExport;
+use App\Exports\NilaiSampleExport;
+use App\Imports\NilaiImport;
 use App\Models\Nilai;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class NilaiController extends Controller
 {
@@ -109,5 +113,37 @@ class NilaiController extends Controller
         $nilai->delete();
 
         return redirect()->route('nilai.index')->with('success', 'Nilai berhasil dihapus.');
+    }
+
+    public function export(Request $request)
+    {
+        return Excel::download(new NilaiExport($request->search), 'nilai-siswa.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:2048',
+        ]);
+
+        $import = new NilaiImport;
+        Excel::import($import, $request->file('file'));
+
+        $failures = $import->failures();
+
+        if ($failures->count() > 0) {
+            $errorMessages = $failures
+                ->map(fn($f) => "Baris {$f->row()}: " . implode(', ', $f->errors()))
+                ->implode(' | ');
+
+            return redirect()->route('nilai.index')->with('error', "Import selesai dengan beberapa error: {$errorMessages}");
+        }
+
+        return redirect()->route('nilai.index')->with('success', 'Import nilai berhasil.');
+    }
+
+    public function sample()
+    {
+        return Excel::download(new NilaiSampleExport, 'nilai-sample.xlsx');
     }
 }

@@ -18,12 +18,21 @@ const props = defineProps({
 
 const visible = ref(!!props.message)
 
+let timer = null
+
 watch(() => props.message, (val) => {
+    if (timer) clearTimeout(timer)
+
     if (val) {
         visible.value = true
+
         if (props.autoDismiss > 0) {
-            setTimeout(() => visible.value = false, props.autoDismiss)
+            timer = setTimeout(() => {
+                visible.value = false
+            }, props.autoDismiss)
         }
+    } else {
+        visible.value = false
     }
 }, { immediate: true })
 

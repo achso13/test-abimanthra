@@ -14,6 +14,10 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 
     Route::resource('siswa', SiswaController::class);
+
+    Route::get('nilai/export', [NilaiController::class, 'export'])->name('nilai.export');
+    Route::post('nilai/import', [NilaiController::class, 'import'])->name('nilai.import');
+    Route::get('nilai/sample', [NilaiController::class, 'sample'])->name('nilai.sample');
     Route::resource('nilai', NilaiController::class);
     
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
